@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartVault - Family Finance Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;transition:background-color .3s}
+        [data-theme="dark"] body{background:#0f1115;color:#f8fafc}
+        [data-theme="dark"] .lc{background:#1a1d24;border-color:#2e3440}
+        [data-theme="dark"] .li{background:#262b36;border-color:#2e3440;color:#f8fafc}
+        [data-theme="light"] body{background:#f3f4f6;color:#111827}
+        [data-theme="light"] .lc{background:#fff;border-color:#e5e7eb}
+        [data-theme="light"] .li{background:#f9fafb;border-color:#e5e7eb;color:#111827}
+        .lc{border:1px solid;border-radius:1rem;padding:2.5rem;max-width:420px;width:100%;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+        .li{border:1.5px solid;border-radius:.5rem;padding:.75rem 1rem;width:100%;outline:none;transition:all .2s;font-size:1rem;font-family:inherit}
+        .li:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+        .lb{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:.5rem;padding:.75rem 1.5rem;width:100%;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+        .lb:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.4)}
+        .lb:disabled{opacity:.5;cursor:not-allowed;transform:none}
+        .err{color:#ef4444;font-size:.85rem;margin-top:.5rem;min-height:1.2rem}
+        .sp{display:none;width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .fade{animation:fadeIn .5s ease-out forwards}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .shake{animation:shake .5s ease-in-out}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+        .tc{color:#94a3b8}.tc2{color:#64748b}
+        [data-theme="light"] .tc{color:#4b5563}[data-theme="light"] .tc2{color:#9ca3af}
+        .toggle-track{position:relative;width:52px;height:28px;border-radius:28px;cursor:pointer;transition:all .3s;border:1.5px solid}
+        [data-theme="dark"] .toggle-track{background:#262b36;border-color:#3b4252}
+        [data-theme="light"] .toggle-track{background:#dbeafe;border-color:#93c5fd}
+        .toggle-thumb{position:absolute;top:3px;width:22px;height:22px;border-radius:50%;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:center}
+        [data-theme="dark"] .toggle-thumb{left:3px;background:#1a1d24;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+        [data-theme="light"] .toggle-thumb{left:27px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+        .theme-icon-sun,.theme-icon-moon{position:absolute;transition:opacity .3s}
+        [data-theme="dark"] .theme-icon-sun{opacity:0}[data-theme="dark"] .theme-icon-moon{opacity:1}
+        [data-theme="light"] .theme-icon-sun{opacity:1}[data-theme="light"] .theme-icon-moon{opacity:0}
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle (bottom-right, small) -->
+    <div style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:100">
+        <div class="toggle-track" id="theme-toggle" title="Toggle light/dark">
+            <div class="toggle-thumb">
+                <svg class="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg class="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="5"/></svg>
+            </div>
+        </div>
+    </div>
+    
+    <div id="lock-screen" class="lc fade">
+        <div style="margin-bottom:2rem">
+            <div style="width:80px;height:80px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h1 style="font-size:1.75rem;font-weight:700;margin-bottom:.25rem">SmartVault</h1>
+            <p class="tc2" style="font-size:.85rem;margin-bottom:.75rem">Family Finance Tracker</p>
+            <p class="tc" style="font-size:.8rem">Enter your PIN to unlock</p>
+        </div>
+        <div id="pin-step">
+            <div style="margin-bottom:1.5rem">
+                <input type="password" id="pin-input" class="li" placeholder="Enter PIN" maxlength="10" autocomplete="off">
+                <div class="err" id="pin-error"></div>
+            </div>
+            <button class="lb" id="pin-btn" onclick="handlePin()"><span id="pin-btn-text">Unlock</span><div class="sp" id="pin-spinner"></div></button>
+            <p class="tc2" style="font-size:.75rem;margin-top:1rem">First time? Enter a new PIN to set it up.</p>
+        </div>
+        <div id="token-step" style="display:none">
+            <div style="margin-bottom:1rem">
+                <p class="tc" style="font-size:.85rem;margin-bottom:1rem">Connect to your private repo:</p>
+                <input type="text" id="gh-user-input" class="li" placeholder="GitHub Username" style="margin-bottom:.75rem" autocomplete="off">
+                <input type="text" id="gh-repo-input" class="li" placeholder="Private Repo Name" style="margin-bottom:.75rem" autocomplete="off">
+                <input type="password" id="gh-token-input" class="li" placeholder="Personal Access Token" autocomplete="off">
+                <div class="err" id="token-error"></div>
+            </div>
+            <button class="lb" id="token-btn" onclick="handleToken()"><span id="token-btn-text">Connect and Load</span><div class="sp" id="token-spinner"></div></button>
+            <p class="tc2" style="font-size:.75rem;margin-top:1rem">Token needs repo scope. Stored only in your browser.</p>
+        </div>
+        <div id="loading-step" style="display:none">
+            <div class="sp" style="display:block;width:32px;height:32px;border-width:3px;margin:0 auto 1rem"></div>
+            <p class="tc" style="font-size:.9rem" id="loading-text">Loading app...</p>
+            <p class="tc2" style="font-size:.7rem;margin-top:0.5rem">Token is stored in memory only and cleared when you close the browser.</p>
+        </div>
+    </div>
+    
+    <div id="app-container" style="display:none;width:100%;min-height:100vh"></div>
+
+    <script>
+    const SK={PIN:'fft_pin',GHU:'fft_gh_user',GHR:'fft_gh_repo',TH:'family-finance-theme'};
+// NOTE: Token is NEVER stored - must be entered each session
+    
+    function initT(){const s=localStorage.getItem(SK.TH)||'dark';document.documentElement.setAttribute('data-theme',s)}
+    function toggleT(){const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem(SK.TH,n)}
+    document.getElementById('theme-toggle').addEventListener('click',toggleT);
+    initT();
+    
+    async function hashPin(p){const d=new TextEncoder().encode('fft_salt_'+p+'_2026');const b=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+    
+    async function handlePin(){
+        const inp=document.getElementById('pin-input'),err=document.getElementById('pin-error'),btn=document.getElementById('pin-btn'),txt=document.getElementById('pin-btn-text'),sp=document.getElementById('pin-spinner');
+        const pin=inp.value.trim();
+        if(!pin){err.textContent='Please enter a PIN';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);return}
+        if(pin.length<4){err.textContent='PIN must be at least 4 characters';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);return}
+        err.textContent='';btn.disabled=true;txt.style.display='none';sp.style.display='block';
+        const hash=await hashPin(pin),stored=localStorage.getItem(SK.PIN);
+        if(stored){
+            if(hash!==stored){err.textContent='Wrong PIN. Try again.';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);btn.disabled=false;txt.style.display='inline';sp.style.display='none';inp.value='';inp.focus();return}
+            if(window._ghToken){showL('Loading app...');await loadApp()}else{showToken()}
+        }else{localStorage.setItem(SK.PIN,hash);showToken()}
+        btn.disabled=false;txt.style.display='inline';sp.style.display='none';
+    }
+    document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')handlePin()});
+    
+    function showToken(){
+        document.getElementById('pin-step').style.display='none';document.getElementById('token-step').style.display='block';
+        const u=localStorage.getItem(SK.GHU),r=localStorage.getItem(SK.GHR);
+        if(u)document.getElementById('gh-user-input').value=u;if(r)document.getElementById('gh-repo-input').value=r;
+        document.getElementById('gh-token-input').focus();
+    }
+    
+    async function handleToken(){
+        const user=document.getElementById('gh-user-input').value.trim(),repo=document.getElementById('gh-repo-input').value.trim(),token=document.getElementById('gh-token-input').value.trim();
+        const err=document.getElementById('token-error'),btn=document.getElementById('token-btn'),txt=document.getElementById('token-btn-text'),sp=document.getElementById('token-spinner');
+        if(!user||!repo||!token){err.textContent='Please fill all fields';return}
+        err.textContent='';btn.disabled=true;txt.style.display='none';sp.style.display='block';
+        try{
+            const res=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/config.js',{headers:{'Authorization':'token '+token}});
+            if(res.status===404){err.textContent='Repo or config.js not found.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
+            if(res.status===401||res.status===403){err.textContent='Invalid token.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
+            if(!res.ok)throw new Error('HTTP '+res.status);
+            localStorage.setItem(SK.GHU,user);localStorage.setItem(SK.GHR,repo);
+// Token stored in memory only - never in localStorage
+window._ghToken = token;
+            showL('Connected! Loading...');await loadApp();
+        }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;txt.style.display='inline';sp.style.display='none'}
+    }
+    ['gh-user-input','gh-repo-input','gh-token-input'].forEach(id=>{document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')handleToken()})});
+    
+    async function loadApp(){
+        const user=localStorage.getItem(SK.GHU),repo=localStorage.getItem(SK.GHR),token=window._ghToken;
+if(!token){showToken();return}
+const hdrs={'Authorization':'token '+token};
+        try{
+            updateL('Loading config...');const cfg=await ghFile(user,repo,'config.js',hdrs);
+            updateL('Loading styles...');const css=await ghFile(user,repo,'style.css',hdrs);
+            updateL('Loading app...');const js=await ghFile(user,repo,'app.js',hdrs);
+            const cs=document.createElement('script');cs.textContent=cfg;document.head.appendChild(cs);
+            const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+            await loadScript('https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js');
+            await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
+            document.getElementById('lock-screen').style.display='none';
+            document.getElementById('app-container').style.display='block';
+            const as=document.createElement('script');as.textContent=js;document.body.appendChild(as);
+        }catch(e){showErr('Failed: '+e.message)}
+    }
+    
+    async function ghFile(u,r,p,h){
+        const res=await fetch('https://api.github.com/repos/'+u+'/'+r+'/contents/'+p,{headers:h});
+        if(!res.ok){if(res.status===404)throw new Error('File not found: '+p);throw new Error('Failed: '+p+' HTTP '+res.status)}
+        const d=await res.json();return atob(d.content.replace(/\n/g,''));
+    }
+    function loadScript(url){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=url;s.onload=ok;s.onerror=()=>no(new Error('Failed: '+url));document.head.appendChild(s)})}
+    
+    function showL(t){document.getElementById('pin-step').style.display='none';document.getElementById('token-step').style.display='none';document.getElementById('loading-step').style.display='block';document.getElementById('loading-text').textContent=t||'Loading...'}
+    function updateL(t){document.getElementById('loading-text').textContent=t}
+    function showErr(m){document.getElementById('loading-step').style.display='none';document.getElementById('pin-step').style.display='block';document.getElementById('pin-error').textContent=m}
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2d3a38939c1df6e',t:'MTc4NzA4NDYzMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

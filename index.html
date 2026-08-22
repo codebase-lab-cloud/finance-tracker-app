@@ -32,28 +32,9 @@
         @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
         .tc{color:#94a3b8}.tc2{color:#64748b}
         [data-theme="light"] .tc{color:#4b5563}[data-theme="light"] .tc2{color:#9ca3af}
-        .toggle-track{position:relative;width:52px;height:28px;border-radius:28px;cursor:pointer;transition:all .3s;border:1.5px solid}
-        [data-theme="dark"] .toggle-track{background:#262b36;border-color:#3b4252}
-        [data-theme="light"] .toggle-track{background:#dbeafe;border-color:#93c5fd}
-        .toggle-thumb{position:absolute;top:3px;width:22px;height:22px;border-radius:50%;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:center}
-        [data-theme="dark"] .toggle-thumb{left:3px;background:#1a1d24;box-shadow:0 2px 4px rgba(0,0,0,.3)}
-        [data-theme="light"] .toggle-thumb{left:27px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.15)}
-        .theme-icon-sun,.theme-icon-moon{position:absolute;transition:opacity .3s}
-        [data-theme="dark"] .theme-icon-sun{opacity:0}[data-theme="dark"] .theme-icon-moon{opacity:1}
-        [data-theme="light"] .theme-icon-sun{opacity:1}[data-theme="light"] .theme-icon-moon{opacity:0}
     </style>
 </head>
 <body>
-    <!-- Theme Toggle (bottom-right, small) -->
-    <div style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:100">
-        <div class="toggle-track" id="theme-toggle" title="Toggle light/dark">
-            <div class="toggle-thumb">
-                <svg class="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                <svg class="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="5"/></svg>
-            </div>
-        </div>
-    </div>
-    
     <div id="lock-screen" class="lc fade">
         <div style="margin-bottom:2rem">
             <div style="width:80px;height:80px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center">
@@ -96,8 +77,6 @@
 // NOTE: Token is NEVER stored - must be entered each session
     
     function initT(){const s=localStorage.getItem(SK.TH)||'dark';document.documentElement.setAttribute('data-theme',s)}
-    function toggleT(){const c=document.documentElement.getAttribute('data-theme'),n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem(SK.TH,n)}
-    document.getElementById('theme-toggle').addEventListener('click',toggleT);
     initT();
     
     async function hashPin(p){const d=new TextEncoder().encode('fft_salt_'+p+'_2026');const b=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
@@ -171,5 +150,5 @@ const hdrs={'Authorization':'token '+token};
     function updateL(t){document.getElementById('loading-text').textContent=t}
     function showErr(m){document.getElementById('loading-step').style.display='none';document.getElementById('pin-step').style.display='block';document.getElementById('pin-error').textContent=m}
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2ea6e3acf42ccbb',t:'MTc4NzMyMzYyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

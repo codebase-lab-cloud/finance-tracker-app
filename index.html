@@ -37,8 +37,6 @@
         @keyframes spin{to{transform:rotate(360deg)}}
         .fade{animation:fadeIn .5s ease-out forwards}
         @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        .shake{animation:shake .5s ease-in-out}
-        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
         .tc{color:#94a3b8}.tc2{color:#64748b}
         [data-theme="light"] .tc{color:#4b5563}[data-theme="light"] .tc2{color:#9ca3af}
     </style>
@@ -51,17 +49,10 @@
             </div>
             <h1 style="font-size:1.75rem;font-weight:700;margin-bottom:.25rem">WiseSpend</h1>
             <p class="tc2" style="font-size:.85rem;margin-bottom:.75rem">Family Finance Tracker</p>
-            <p class="tc" style="font-size:.8rem">Enter your PIN to unlock</p>
         </div>
-        <div id="pin-step">
-            <div style="margin-bottom:1.5rem">
-                <input type="password" id="pin-input" class="li" placeholder="Enter PIN" maxlength="10" autocomplete="off">
-                <div class="err" id="pin-error"></div>
-            </div>
-            <button class="lb" id="pin-btn" onclick="handlePin()"><span id="pin-btn-text">Unlock</span><div class="sp" id="pin-spinner"></div></button>
-            <p class="tc2" style="font-size:.75rem;margin-top:1rem">First time? Enter a new PIN to set it up.</p>
-        </div>
-        <div id="token-step" style="display:none">
+        
+        <!-- GitHub Auth (only auth layer) -->
+        <div id="token-step">
             <div style="margin-bottom:1rem">
                 <p class="tc" style="font-size:.85rem;margin-bottom:1rem">Connect to your private repo:</p>
                 <input type="text" id="gh-user-input" class="li" placeholder="GitHub Username" style="margin-bottom:.75rem" autocomplete="off">
@@ -72,92 +63,113 @@
             <button class="lb" id="token-btn" onclick="handleToken()"><span id="token-btn-text">Connect and Load</span><div class="sp" id="token-spinner"></div></button>
             <p class="tc2" style="font-size:.75rem;margin-top:1rem">Token needs repo scope. Stored only in your browser.</p>
         </div>
+        
         <div id="loading-step" style="display:none">
             <div class="sp" style="display:block;width:32px;height:32px;border-width:3px;margin:0 auto 1rem"></div>
             <p class="tc" style="font-size:.9rem" id="loading-text">Loading app...</p>
-            <p class="tc2" style="font-size:.7rem;margin-top:0.5rem">Token is stored in memory only and cleared when you close the browser.</p>
         </div>
     </div>
     
     <div id="app-container" style="display:none;width:100%;min-height:100vh"></div>
 
     <script>
-    const SK={PIN:'fft_pin',GHU:'fft_gh_user',GHR:'fft_gh_repo',TH:'family-finance-theme'};
-// NOTE: Token is NEVER stored - must be entered each session
+    const SK={GHU:'fft_gh_user',GHR:'fft_gh_repo',TH:'family-finance-theme'};
     
-    function initT(){const s=localStorage.getItem(SK.TH)||'dark';document.documentElement.setAttribute('data-theme',s)}
-    initT();
+    // Init theme
+    (function(){var s=localStorage.getItem(SK.TH)||'dark';document.documentElement.setAttribute('data-theme',s)})();
     
-    async function hashPin(p){const d=new TextEncoder().encode('fft_salt_'+p+'_2026');const b=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
-    
-    async function handlePin(){
-        const inp=document.getElementById('pin-input'),err=document.getElementById('pin-error'),btn=document.getElementById('pin-btn'),txt=document.getElementById('pin-btn-text'),sp=document.getElementById('pin-spinner');
-        const pin=inp.value.trim();
-        if(!pin){err.textContent='Please enter a PIN';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);return}
-        if(pin.length<4){err.textContent='PIN must be at least 4 characters';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);return}
-        err.textContent='';btn.disabled=true;txt.style.display='none';sp.style.display='block';
-        const hash=await hashPin(pin),stored=localStorage.getItem(SK.PIN);
-        if(stored){
-            if(hash!==stored){err.textContent='Wrong PIN. Try again.';inp.classList.add('shake');setTimeout(()=>inp.classList.remove('shake'),500);btn.disabled=false;txt.style.display='inline';sp.style.display='none';inp.value='';inp.focus();return}
-            if(window._ghToken){showL('Loading app...');await loadApp()}else{showToken()}
-        }else{localStorage.setItem(SK.PIN,hash);showToken()}
-        btn.disabled=false;txt.style.display='inline';sp.style.display='none';
-    }
-    document.getElementById('pin-input').addEventListener('keydown',e=>{if(e.key==='Enter')handlePin()});
-    
-    function showToken(){
-        document.getElementById('pin-step').style.display='none';document.getElementById('token-step').style.display='block';
-        const u=localStorage.getItem(SK.GHU),r=localStorage.getItem(SK.GHR);
-        if(u)document.getElementById('gh-user-input').value=u;if(r)document.getElementById('gh-repo-input').value=r;
-        document.getElementById('gh-token-input').focus();
-    }
+    // Check if already authenticated
+    (function(){
+        var user=localStorage.getItem(SK.GHU);
+        var repo=localStorage.getItem(SK.GHR);
+        var token=window._ghToken;
+        if(user&&repo&&token){
+            // Already authenticated, load app directly
+            document.getElementById('token-step').style.display='none';
+            document.getElementById('loading-step').style.display='block';
+            document.getElementById('loading-text').textContent='Loading app...';
+            loadApp();
+        }else if(user&&repo){
+            // Have user/repo but no token - show token step with pre-filled values
+            document.getElementById('gh-user-input').value=user;
+            document.getElementById('gh-repo-input').value=repo;
+            document.getElementById('gh-token-input').focus();
+        }
+    })();
     
     async function handleToken(){
-        const user=document.getElementById('gh-user-input').value.trim(),repo=document.getElementById('gh-repo-input').value.trim(),token=document.getElementById('gh-token-input').value.trim();
-        const err=document.getElementById('token-error'),btn=document.getElementById('token-btn'),txt=document.getElementById('token-btn-text'),sp=document.getElementById('token-spinner');
+        var user=document.getElementById('gh-user-input').value.trim();
+        var repo=document.getElementById('gh-repo-input').value.trim();
+        var token=document.getElementById('gh-token-input').value.trim();
+        var err=document.getElementById('token-error');
+        var btn=document.getElementById('token-btn');
+        var txt=document.getElementById('token-btn-text');
+        var sp=document.getElementById('token-spinner');
+        
         if(!user||!repo||!token){err.textContent='Please fill all fields';return}
         err.textContent='';btn.disabled=true;txt.style.display='none';sp.style.display='block';
+        
         try{
-            const res=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/config.js',{headers:{'Authorization':'token '+token}});
+            var res=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/config.js',{headers:{'Authorization':'token '+token}});
             if(res.status===404){err.textContent='Repo or config.js not found.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
             if(res.status===401||res.status===403){err.textContent='Invalid token.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
             if(!res.ok)throw new Error('HTTP '+res.status);
-            localStorage.setItem(SK.GHU,user);localStorage.setItem(SK.GHR,repo);
-// Token stored in memory only - never in localStorage
-window._ghToken = token;
-            showL('Connected! Loading...');await loadApp();
-        }catch(e){err.textContent='Error: '+e.message;btn.disabled=false;txt.style.display='inline';sp.style.display='none'}
+            
+            localStorage.setItem(SK.GHU,user);
+            localStorage.setItem(SK.GHR,repo);
+            window._ghToken=token;
+            
+            document.getElementById('token-step').style.display='none';
+            document.getElementById('loading-step').style.display='block';
+            await loadApp();
+        }catch(e){
+            err.textContent='Error: '+e.message;
+            btn.disabled=false;txt.style.display='inline';sp.style.display='none';
+        }
     }
-    ['gh-user-input','gh-repo-input','gh-token-input'].forEach(id=>{document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')handleToken()})});
+    
+    ['gh-user-input','gh-repo-input','gh-token-input'].forEach(function(id){
+        document.getElementById(id).addEventListener('keydown',function(e){if(e.key==='Enter')handleToken()});
+    });
     
     async function loadApp(){
-        const user=localStorage.getItem(SK.GHU),repo=localStorage.getItem(SK.GHR),token=window._ghToken;
-if(!token){showToken();return}
-const hdrs={'Authorization':'token '+token};
+        var user=localStorage.getItem(SK.GHU);
+        var repo=localStorage.getItem(SK.GHR);
+        var token=window._ghToken;
+        if(!token){document.getElementById('token-step').style.display='block';document.getElementById('loading-step').style.display='none';return}
+        
+        var hdrs={'Authorization':'token '+token};
         try{
-            updateL('Loading config...');const cfg=await ghFile(user,repo,'config.js',hdrs);
-            updateL('Loading styles...');const css=await ghFile(user,repo,'style.css',hdrs);
-            updateL('Loading app...');const js=await ghFile(user,repo,'app.js',hdrs);
-            const cs=document.createElement('script');cs.textContent=cfg;document.head.appendChild(cs);
-            const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+            updateL('Loading config...');
+            var cfg=await ghFile(user,repo,'config.js',hdrs);
+            updateL('Loading styles...');
+            var css=await ghFile(user,repo,'style.css',hdrs);
+            updateL('Loading app...');
+            var js=await ghFile(user,repo,'app.js',hdrs);
+            
+            var cs=document.createElement('script');cs.textContent=cfg;document.head.appendChild(cs);
+            var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+            
             await loadScript('https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js');
             await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
+            
             document.getElementById('lock-screen').style.display='none';
             document.getElementById('app-container').style.display='block';
-            const as=document.createElement('script');as.textContent=js;document.body.appendChild(as);
+            
+            var as=document.createElement('script');as.textContent=js;document.body.appendChild(as);
         }catch(e){showErr('Failed: '+e.message)}
     }
     
     async function ghFile(u,r,p,h){
-        const res=await fetch('https://api.github.com/repos/'+u+'/'+r+'/contents/'+p,{headers:h});
+        var res=await fetch('https://api.github.com/repos/'+u+'/'+r+'/contents/'+p,{headers:h});
         if(!res.ok){if(res.status===404)throw new Error('File not found: '+p);throw new Error('Failed: '+p+' HTTP '+res.status)}
-        const d=await res.json();return atob(d.content.replace(/\n/g,''));
+        var d=await res.json();return atob(d.content.replace(/\n/g,''));
     }
-    function loadScript(url){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=url;s.onload=ok;s.onerror=()=>no(new Error('Failed: '+url));document.head.appendChild(s)})}
     
-    function showL(t){document.getElementById('pin-step').style.display='none';document.getElementById('token-step').style.display='none';document.getElementById('loading-step').style.display='block';document.getElementById('loading-text').textContent=t||'Loading...'}
+    function loadScript(url){return new Promise(function(ok,no){var s=document.createElement('script');s.src=url;s.onload=ok;s.onerror=function(){no(new Error('Failed: '+url))};document.head.appendChild(s)})}
+    
     function updateL(t){document.getElementById('loading-text').textContent=t}
-    function showErr(m){document.getElementById('loading-step').style.display='none';document.getElementById('pin-step').style.display='block';document.getElementById('pin-error').textContent=m}
+    function showErr(m){document.getElementById('loading-step').style.display='none';document.getElementById('token-step').style.display='block';document.getElementById('token-error').textContent=m}
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3574227183d2982',t:'MTc4ODQ2NDc2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

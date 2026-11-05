@@ -163,7 +163,11 @@
     async function ghFile(u,r,p,h){
         var res=await fetch('https://api.github.com/repos/'+u+'/'+r+'/contents/'+p,{headers:h});
         if(!res.ok){if(res.status===404)throw new Error('File not found: '+p);throw new Error('Failed: '+p+' HTTP '+res.status)}
-        var d=await res.json();return atob(d.content.replace(/\n/g,''));
+        var d=await res.json();
+        var bin=atob(d.content.replace(/\n/g,''));
+        var bytes=new Uint8Array(bin.length);
+        for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+        return new TextDecoder('utf-8').decode(bytes);
     }
     
     function loadScript(url){return new Promise(function(ok,no){var s=document.createElement('script');s.src=url;s.onload=ok;s.onerror=function(){no(new Error('Failed: '+url))};document.head.appendChild(s)})}

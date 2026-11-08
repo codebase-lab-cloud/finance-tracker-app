@@ -341,10 +341,16 @@
             await loadScript('https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js');
             await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
             
-            document.getElementById('lock-screen').style.display='none';
-            document.getElementById('app-container').style.display='block';
-            
-            var as=document.createElement('script');as.textContent=js;document.body.appendChild(as);
+            updateL('Initializing WiseSpend...');
+            try {
+                (0, eval)(js);
+                document.getElementById('lock-screen').style.display='none';
+                document.getElementById('app-container').style.display='block';
+            } catch(initErr) {
+                console.error('WiseSpend initialization failed:', initErr);
+                showErr('Initialization error: ' + initErr.message);
+                return;
+            }
         }catch(e){showErr('Failed: '+e.message)}
     }
     

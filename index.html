@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>WiseSpend - Family Finance Tracker</title>
-    <meta name="description" content="Track family expenses, savings, and income">
-    <meta name="theme-color" content="#0f1115">
+    <title>WiseSpend - Next-Gen Family Finance Tracker</title>
+    <meta name="description" content="Track family expenses, savings, and income with WiseSpend">
+    <meta name="theme-color" content="#0a0d14">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="WiseSpend">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,58 +15,248 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        html,body{overflow-x:hidden;max-width:100vw}body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;transition:background-color .3s}
-        [data-theme="dark"] body{background:#0f1115;color:#f8fafc}
-        [data-theme="dark"] .lc{background:#1a1d24;border-color:#2e3440}
-        [data-theme="dark"] .li{background:#262b36;border-color:#2e3440;color:#f8fafc}
-        [data-theme="light"] body{background:#f3f4f6;color:#111827}
-        [data-theme="light"] .lc{background:#fff;border-color:#e5e7eb}
-        [data-theme="light"] .li{background:#f9fafb;border-color:#e5e7eb;color:#111827}
-        .lc{border:1px solid;border-radius:1rem;padding:2.5rem;max-width:420px;width:100%;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
-        .li{border:1.5px solid;border-radius:.5rem;padding:.75rem 1rem;width:100%;outline:none;transition:all .2s;font-size:1rem;font-family:inherit}
-        .li:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-        .lb{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:.5rem;padding:.75rem 1.5rem;width:100%;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
-        .lb:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,.4)}
-        .lb:disabled{opacity:.5;cursor:not-allowed;transform:none}
-        .err{color:#ef4444;font-size:.85rem;margin-top:.5rem;min-height:1.2rem}
-        .sp{display:none;width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .fade{animation:fadeIn .5s ease-out forwards}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        .tc{color:#94a3b8}.tc2{color:#64748b}
-        [data-theme="light"] .tc{color:#4b5563}[data-theme="light"] .tc2{color:#9ca3af}
+        :root {
+            --primary: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #06b6d4 100%);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        [data-theme="dark"] body {
+            background-color: #0a0d14;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.7) 0px, transparent 100%);
+            color: #f8fafc;
+        }
+        [data-theme="dark"] .lc {
+            background: rgba(17, 24, 39, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 40px rgba(79, 70, 229, 0.15);
+        }
+        [data-theme="dark"] .li {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+        }
+        [data-theme="dark"] .li:focus {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+        }
+        [data-theme="dark"] .tc { color: #94a3b8; }
+        [data-theme="dark"] .tc2 { color: #64748b; }
+        [data-theme="dark"] .brand-sub { color: #818cf8; }
+
+        [data-theme="light"] body {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.06) 0px, transparent 50%);
+            color: #0f172a;
+        }
+        [data-theme="light"] .lc {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12), 0 0 25px rgba(79, 70, 229, 0.06);
+        }
+        [data-theme="light"] .li {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+        }
+        [data-theme="light"] .li:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        [data-theme="light"] .tc { color: #475569; }
+        [data-theme="light"] .tc2 { color: #94a3b8; }
+        [data-theme="light"] .brand-sub { color: #4f46e5; }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+        .lc {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            padding: 2.5rem 2.25rem;
+            max-width: 440px;
+            width: calc(100% - 2rem);
+            margin: 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        .li {
+            border-radius: 0.875rem;
+            padding: 0.85rem 1.15rem;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem; /* 16px to prevent iOS auto-zoom */
+            font-family: inherit;
+        }
+        .lb {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: 0.875rem;
+            padding: 0.9rem 1.5rem;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+        }
+        .lb:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+            filter: brightness(1.05);
+        }
+        .lb:active {
+            transform: translateY(0);
+        }
+        .lb:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .err {
+            color: #f43f5e;
+            font-size: 0.825rem;
+            margin-top: 0.6rem;
+            min-height: 1.25rem;
+            font-weight: 500;
+        }
+        .sp {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fade {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .logo-wrap {
+            position: relative;
+            width: 84px;
+            height: 84px;
+            margin: 0 auto 1.5rem;
+        }
+        .logo-glow {
+            position: absolute;
+            inset: -4px;
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            border-radius: 50%;
+            filter: blur(14px);
+            opacity: 0.55;
+            animation: pulse-glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from { opacity: 0.4; transform: scale(0.95); }
+            to { opacity: 0.7; transform: scale(1.08); }
+        }
+        .logo-shield {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 8px 24px rgba(79, 70, 229, 0.4);
+        }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
     </style>
 </head>
 <body>
     <div id="lock-screen" class="lc fade">
-        <div style="margin-bottom:2rem">
-            <div style="width:80px;height:80px;margin:0 auto 1.5rem;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:50%;display:flex;align-items:center;justify-content:center">
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div style="margin-bottom: 2rem;">
+            <div class="logo-wrap">
+                <div class="logo-glow"></div>
+                <div class="logo-shield">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                </div>
             </div>
-            <h1 style="font-size:1.75rem;font-weight:700;margin-bottom:.25rem">WiseSpend</h1>
-            <p class="tc2" style="font-size:.85rem;margin-bottom:.75rem">Family Finance Tracker</p>
+            <div class="badge-pill brand-sub">
+                <span>&#x25CF;</span> WiseSpend v2.5
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.25rem;">WiseSpend</h1>
+            <p class="tc2" style="font-size: 0.875rem; font-weight: 500;">Next-Gen Family Wealth &amp; Expense Hub</p>
         </div>
         
         <!-- GitHub Auth (only auth layer) -->
         <div id="token-step">
-            <div style="margin-bottom:1rem">
-                <p class="tc" style="font-size:.85rem;margin-bottom:1rem">Connect to your private repo:</p>
-                <input type="text" id="gh-user-input" class="li" placeholder="GitHub Username" style="margin-bottom:.75rem" autocomplete="off">
-                <input type="text" id="gh-repo-input" class="li" placeholder="Private Repo Name" style="margin-bottom:.75rem" autocomplete="off">
-                <input type="password" id="gh-token-input" class="li" placeholder="Personal Access Token" autocomplete="off">
+            <div style="margin-bottom: 1.25rem; text-align: left;">
+                <label class="tc" style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">Connect Private Vault</label>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <input type="text" id="gh-user-input" class="li" placeholder="GitHub Username (e.g. codebase-lab-cloud)" autocomplete="off">
+                    <input type="text" id="gh-repo-input" class="li" placeholder="Private Repository (e.g. finance-tracker-data)" autocomplete="off">
+                    <input type="password" id="gh-token-input" class="li" placeholder="Personal Access Token (classic / fine-grained)" autocomplete="off">
+                </div>
                 <div class="err" id="token-error"></div>
             </div>
-            <button class="lb" id="token-btn" onclick="handleToken()"><span id="token-btn-text">Connect and Load</span><div class="sp" id="token-spinner"></div></button>
-            <p class="tc2" style="font-size:.75rem;margin-top:1rem">Token needs repo scope. Stored only in your browser.</p>
+            <button class="lb" id="token-btn" onclick="handleToken()">
+                <span id="token-btn-text">Unlock Vault &amp; Launch</span>
+                <div class="sp" id="token-spinner"></div>
+            </button>
+            <div style="margin-top: 1.25rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" class="tc2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span style="font-size: 0.75rem;">Encrypted &bull; Stored locally in your browser only</span>
+            </div>
         </div>
         
-        <div id="loading-step" style="display:none">
-            <div class="sp" style="display:block;width:32px;height:32px;border-width:3px;margin:0 auto 1rem"></div>
-            <p class="tc" style="font-size:.9rem" id="loading-text">Loading app...</p>
+        <div id="loading-step" style="display: none; padding: 1.5rem 0;">
+            <div class="sp" style="display: block; width: 36px; height: 36px; border-width: 3.5px; border-top-color: #6366f1; margin: 0 auto 1.25rem;"></div>
+            <p class="tc" style="font-size: 0.95rem; font-weight: 600;" id="loading-text">Loading app...</p>
+            <p class="tc2" style="font-size: 0.8rem; margin-top: 0.35rem;">Decrypting secure modules</p>
         </div>
     </div>
     
@@ -84,13 +274,11 @@
         var repo=localStorage.getItem(SK.GHR);
         var token=window._ghToken;
         if(user&&repo&&token){
-            // Already authenticated, load app directly
             document.getElementById('token-step').style.display='none';
             document.getElementById('loading-step').style.display='block';
             document.getElementById('loading-text').textContent='Loading app...';
             loadApp();
         }else if(user&&repo){
-            // Have user/repo but no token - show token step with pre-filled values
             document.getElementById('gh-user-input').value=user;
             document.getElementById('gh-repo-input').value=repo;
             document.getElementById('gh-token-input').focus();
@@ -112,7 +300,7 @@
         try{
             var res=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/config.js',{headers:{'Authorization':'token '+token}});
             if(res.status===404){err.textContent='Repo or config.js not found.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
-            if(res.status===401||res.status===403){err.textContent='Invalid token.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
+            if(res.status===401||res.status===403){err.textContent='Invalid token or insufficient permissions.';btn.disabled=false;txt.style.display='inline';sp.style.display='none';return}
             if(!res.ok)throw new Error('HTTP '+res.status);
             
             localStorage.setItem(SK.GHU,user);
@@ -175,5 +363,5 @@
     function updateL(t){document.getElementById('loading-text').textContent=t}
     function showErr(m){document.getElementById('loading-step').style.display='none';document.getElementById('token-step').style.display='block';document.getElementById('token-error').textContent=m}
     </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3574227183d2982',t:'MTc4ODQ2NDc2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
